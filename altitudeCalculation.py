@@ -1,0 +1,3 @@
+def altitudeCalc(pressure, temperature):
+	
+	
