@@ -1,5 +1,6 @@
 import random
 import time
+from velocityFromGps import calcVelGPS
 
 latDeg = 34
 lonDeg = -118
@@ -8,22 +9,22 @@ alt = 1000
 coor = open('coordinates.txt', 'w+')
 coor.write("")
 
-i = -5
+i = -5.0
+#garbage values
+lat2 = 0
+lon2 = 0
+newTime = time.time()
 
-while True:
-    latMin = float(4) + float(i/10)
-    lonMin = float(26)
-    lat = (latDeg+(latMin/60))
-    lon = (lonDeg-(lonMin/60))
-    newCoor = ( 
+def printCoor(lon, lat, alt):
+  newCoor = ( 
             '%s,%s,%s'
-      	) %(lon, lat, alt)
+        ) %(lon, lat, alt)
 
-    with open('coordinates.txt', 'a+') as coor: 
-        print newCoor
+  with open('coordinates.txt', 'a+') as coor: 
+        print "lon, lat, alt: " + newCoor
         coor.write(newCoor + '\n')
 
-    with open("position.kml", "w") as pos:
+  with open("position.kml", "w") as pos:
         kmlHead = (
             """<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
@@ -61,6 +62,26 @@ while True:
         coor = open('coordinates.txt', 'r')
 
         pos.write(kmlHead + coor.read() + kmlFoot)
-    print i
+
+while True:
+    latMin = 4 + i/10
+    lonMin = float(26)
+    lat = float(latDeg)+float(latMin/60)
+    lon = float(lonDeg)-float(lonMin/60)
+    
+    printCoor(lon, lat, alt)
+    
+    #push the last new value to the old and then set the new value 
+    lat1 = lat2
+    lat2 = lat
+    lon1 = lon2
+    lon2 = lon
+
+    #creation of variables for speed calc
+    oldTime = newTime
+    newTime = time.time()
+    dt = newTime - oldTime
+    print "time elapsed: " + str(dt) 
+    calcVelGPS(lat1, lon1, lat2, lon2, dt)
     i += 1
-    time.sleep(1)
+    time.sleep(0.5)
