@@ -2,17 +2,21 @@ import random
 import time
 from velocityFromGps import calcVelGPS
 
+#random values for testing without actual GPS
+#should be replaced with parsed GPS coordinates
 latDeg = 34
 lonDeg = -118
 alt = 1000
 
+#reset coordinates path
 coor = open('coordinates.txt', 'w+')
 coor.write("")
-
+#random increment for stuff
 i = -5.0
 #garbage values
-lat2 = 0
-lon2 = 0
+#these will have no replacement from the data stream
+lat2 = 34
+lon2 = -118
 newTime = time.time()
 
 def printCoor(lon, lat, alt):
@@ -25,7 +29,7 @@ def printCoor(lon, lat, alt):
         coor.write(newCoor + '\n')
 
   with open("position.kml", "w") as pos:
-        kmlHead = (
+      kmlHead = (
             """<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
@@ -66,8 +70,8 @@ def printCoor(lon, lat, alt):
 while True:
     latMin = 4 + i/10
     lonMin = float(26)
-    lat = float(latDeg)+float(latMin/60)
-    lon = float(lonDeg)-float(lonMin/60)
+    lat = float(latDeg)+float(latMin)/60
+    lon = float(lonDeg)-float(lonMin)/60
     
     printCoor(lon, lat, alt)
     
