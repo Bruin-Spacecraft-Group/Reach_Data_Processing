@@ -2,24 +2,12 @@ import random
 import time
 from velocityFromGps import calcVelGPS
 
-#random values for testing without actual GPS
-#should be replaced with parsed GPS coordinates
-latDeg = 34
-lonDeg = -118
-alt = 1000
+def GPSInit()
+  #reset coordinates path
+  coor = open('coordinates.txt', 'w+')
+  coor.write("")
 
-#reset coordinates path
-coor = open('coordinates.txt', 'w+')
-coor.write("")
-#random increment for stuff
-i = -5.0
-#garbage values
-#these will have no replacement from the data stream
-lat2 = 34
-lon2 = -118
-newTime = time.time()
-
-def printCoor(lon, lat, alt):
+def saveCoor(lon, lat, alt):
   newCoor = ( 
             '%s,%s,%s'
         ) %(lon, lat, alt)
@@ -67,13 +55,15 @@ def printCoor(lon, lat, alt):
 
         pos.write(kmlHead + coor.read() + kmlFoot)
 
-while True:
-    latMin = 4 + i/10
-    lonMin = float(26)
+def processCoordinates(coordinates, timestamp)
+    coordinates
+
+    latMin = 
+    lonMin = 
     lat = float(latDeg)+float(latMin)/60
     lon = float(lonDeg)-float(lonMin)/60
     
-    printCoor(lon, lat, alt)
+    saveCoor(lon, lat, alt)
     
     #push the last new value to the old and then set the new value 
     lat1 = lat2
@@ -83,9 +73,8 @@ while True:
 
     #creation of variables for speed calc
     oldTime = newTime
+    #update time with timestamp
     newTime = time.time()
     dt = newTime - oldTime
     print "time elapsed: " + str(dt) 
     calcVelGPS(lat1, lon1, lat2, lon2, dt)
-    i += 1
-    time.sleep(0.5)
