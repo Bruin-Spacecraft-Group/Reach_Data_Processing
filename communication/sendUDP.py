@@ -4,10 +4,14 @@ UDP_IP = "10.10.10.194"
 UDP_PORT = 5005
 MESSAGE = "Hello, World!"
 
-print "UDP target IP:", UDP_IP
-print "UDP target port:", UDP_PORT
-print "message:", MESSAGE
+def initSocket(UDP_IP, UDP_PORT):
+	UDP_IP = UDP_IP
+	UDP_PORT = UDP_PORT
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	return sock
 
-sock = socket.socket(socket.AF_INET, # Internet
-                     socket.SOCK_DGRAM) # UDP
-sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+def sendPacket(sock, data):
+	sock.sendto(data, (UDP_IP, UDP_PORT))
+
+def killSocket(sock):	
+	sock.close()
