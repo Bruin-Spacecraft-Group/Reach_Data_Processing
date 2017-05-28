@@ -1,14 +1,16 @@
 import socket
 #wlan0 address of raspberry pi
-TCP_IP = '10.10.10.194'
-TCP_PORT = 5005
+#TCP_IP = '10.10.10.194'
+#TCP_PORT = 5005
 BUFFER_SIZE = 1024
-MESSAGE = "Hello, World!"
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((TCP_IP, TCP_PORT))
-s.send(MESSAGE)
-data = s.recv(BUFFER_SIZE)
-s.close()
+def initSocket(TCP_IP, TCP_PORT):
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	sock.connect((TCP_IP, TCP_PORT))
+	return sock
 
-print "received data:", data
+def sendPacket(sock, data):
+	sock.send(data)
+
+def killSocket(sock):	
+	sock.close()

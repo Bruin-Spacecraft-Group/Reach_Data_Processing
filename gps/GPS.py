@@ -2,7 +2,7 @@ import random
 import time
 from velocityFromGps import calcVelGPS
 
-def GPSInit()
+def GPSInit():
   #reset coordinates path
   coor = open('coordinates.txt', 'w+')
   coor.write("")
@@ -44,22 +44,24 @@ def saveCoor(lon, lat, alt):
         <altitudeMode>absolute</altitudeMode>
         <coordinates>\n""" 
             )
-        kmlFoot = (
+      kmlFoot = (
             """</coordinates>
       </LineString>
     </Placemark>
   </Document>
 </kml>\n"""
             )
-        coor = open('coordinates.txt', 'r')
+      coor = open('coordinates.txt', 'r')
 
-        pos.write(kmlHead + coor.read() + kmlFoot)
+      pos.write(kmlHead + coor.read() + kmlFoot)
 
-def processCoordinates(coordinates, timestamp)
-    coordinates
+def processCoordinates(timestamp, longitude, latitude, altitude):
+    latDeg = Math.floor(latitude)
+    lonDeg = Math.floor(longitude)
 
-    latMin = 
-    lonMin = 
+    latMin = latitude - latDeg
+    lonMin = longitude - lonDeg
+    
     lat = float(latDeg)+float(latMin)/60
     lon = float(lonDeg)-float(lonMin)/60
     
@@ -74,7 +76,7 @@ def processCoordinates(coordinates, timestamp)
     #creation of variables for speed calc
     oldTime = newTime
     #update time with timestamp
-    newTime = time.time()
+    newTime = timestamp
     dt = newTime - oldTime
     print "time elapsed: " + str(dt) 
     calcVelGPS(lat1, lon1, lat2, lon2, dt)
