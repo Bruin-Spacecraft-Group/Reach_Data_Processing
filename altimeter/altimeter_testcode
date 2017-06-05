@@ -11,6 +11,8 @@ Testing notes:
     - Possible solution: throw stuff off https://en.wikipedia.org/wiki/Free_fall#Uniform_gravitational_field_with_air_resistance
 */
 
+-----------------------------------------------------------------------------------------------------------------------------------------
+
 #include <Wire.h>
 #include <Adafruit_MPL3115A2.h>
 
