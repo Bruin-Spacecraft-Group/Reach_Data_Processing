@@ -1,14 +1,14 @@
 import time
 import serial
+import socket
 from gps.GPS import GPSInit, saveCoor, processCoordinates
 #from communication.readSerial import readFromSerial
 #from communication.sendTCP import initSocket, sendPacket, killSocket
 from communication.sendUDP import initSocket, sendPacket, killSocket
-
-GPSInit()
+from accel import findInertialFrameAccel
 
 #initiate serial port to read from
-SERIAL_PORT = 'COM6'
+SERIAL_PORT = 'COM3'
 ser = serial.Serial(
     port=SERIAL_PORT,
     baudrate=9600,
@@ -26,6 +26,10 @@ try:
 	sock = initSocket(SEND_TO_IP, SEND_TO_PORT)
 except:
 	print "could not connect to rockets server"
+
+GPSInit()
+velocity = [0,0,0]
+position = [0,0,0]
 
 while ser.isOpen():
 	#get data
@@ -50,10 +54,24 @@ while ser.isOpen():
 	data = dataString.split(",")
 
 	#DO STUFF WITH DATA
+	dt = data[0] - oldtime
+	oldtime = data[0]
+
+	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[7], dt)
 	
+	velocity[0] = velocity[0] + acceleration[0]*dt
+	velocity[1] = velocity[1] + acceleration[1]*dt
+	velocity[2] = velocity[2] + acceleration[2]*dt
+
+	position[0] = position[0] + velocity[0]*dt
+	position[1] = position[1] + velocity[1]*dt
+	position[2] = position[2] + velocity[2]*dt
+
 	#processCoordinates(data[0], data[9], data[10], data[11])
 	
 	#sendPacket(sock, finalData)
-	sendPacket(sock, data)
+	data = BUFFER + data
+	sock.sendto(data, (SEND_TO_IP, SEND_TO_PORT))
+	#sendPacket(sock, data)
 	
 killSocket(sock)

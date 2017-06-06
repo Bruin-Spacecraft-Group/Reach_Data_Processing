@@ -1,5 +1,5 @@
 int n = 0;
-
+int data[] = {5, 15, 20, 34, 17, 82, 79, 43, 50, 20};
 void setup() 
 {
   while (!Serial);
@@ -11,9 +11,22 @@ void setup()
 }
  
 void loop()
-{
-   Serial.println(n);
-   n++;
+{  
+   for(int i =0; i < 10; i++){
+    Serial.print(data[i]);
+    Serial.print(",");
+    if(i%2 == 0){
+      data[i] += 1;
+    }
+    else {
+      data[i] -= 1;
+    }
+   }
+   Serial.print('\n');
+   //Serial.println(n);
+   //n++;
    delay(100);
 }
+/*
 
+   */
