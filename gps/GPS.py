@@ -1,5 +1,6 @@
 import random
 import time
+import math
 from velocityFromGps import calcVelGPS
 
 def GPSInit():
@@ -55,17 +56,19 @@ def saveCoor(lon, lat, alt):
 
       pos.write(kmlHead + coor.read() + kmlFoot)
 
-def processCoordinates(timestamp, longitude, latitude, altitude):
-    latDeg = Math.floor(latitude)
-    lonDeg = Math.floor(longitude)
 
-    latMin = latitude - latDeg
-    lonMin = longitude - lonDeg
+def processCoordinates(timestamp, longitude, latitude, altitude):
+
+    latDeg = math.floor(float(latitude))
+    lonDeg = math.floor(float(longitude))
+
+    latMin = float(latitude) - latDeg
+    lonMin = float(longitude) - lonDeg
     
     lat = float(latDeg)+float(latMin)/60
     lon = float(lonDeg)-float(lonMin)/60
     
-    saveCoor(lon, lat, alt)
+    saveCoor(lon, lat, altitude)
     
     #push the last new value to the old and then set the new value 
     lat1 = lat2
