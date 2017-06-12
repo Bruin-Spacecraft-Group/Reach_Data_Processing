@@ -42,7 +42,7 @@ def rotate(accel, rotation):
 	return accel
 
 def findInertialFrameAccel(accX, accY, accZ, gyrX, gyrY, gyrZ, dt, accX_offset, accY_offset, accZ_offset):
-	acceleration = [accX + ACCX_CALIB, accY + ACCY_CALIB, accZ + ACCZ_CALIB]
+	acceleration = [ accX , accY , accZ ]
 	net_rotation = createRotation(1,2,1)
 	velocity = [0,0,0]
 	position = [0,0,0]
