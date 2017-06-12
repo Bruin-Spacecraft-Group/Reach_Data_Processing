@@ -41,15 +41,15 @@ def rotate(accel, rotation):
 	accel[2] = c
 	return accel
 
-def findInertialFrameAccel(accX, accY, accZ, gyrX, gyrY, gyrZ, dt):
+def findInertialFrameAccel(accX, accY, accZ, gyrX, gyrY, gyrZ, dt, accX_offset, accY_offset, accZ_offset):
 	acceleration = [accX + ACCX_CALIB, accY + ACCY_CALIB, accZ + ACCZ_CALIB]
 	net_rotation = createRotation(1,2,1)
 	velocity = [0,0,0]
 	position = [0,0,0]
 	
-	acceleration[0] = acceleration[0] * 9.8 / 256
-	acceleration[1] = acceleration[1] * 9.8 / 256
-	acceleration[2] = acceleration[2] * 9.8 / 256
+	acceleration[0] = acceleration[0] * 9.8 / 256 - accX_offset
+	acceleration[1] = acceleration[1] * 9.8 / 256 - accY_offset
+	acceleration[2] = acceleration[2] * 9.8 / 256 - accZ_offset
 
 	#note I skipped the gyro absolute value tests
 	gyrX = gyrX + GYRX_CALIB
