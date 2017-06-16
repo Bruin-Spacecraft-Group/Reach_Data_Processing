@@ -18,34 +18,7 @@ GPSInit()
 velocity = [0,0,0]
 position = [0,0,0]
 
-try:
-	#initiate serial port to read data from
-	SERIAL_PORT = 'COM3'
-	ser = serial.Serial(
-	    port=SERIAL_PORT,
-	    baudrate=9600,
-	    #I DONT KNOW WHAT THESE MEAN PLEASE CHANGE
-	    parity=serial.PARITY_ODD,
-	    stopbits=serial.STOPBITS_TWO,
-	    bytesize=serial.SEVENBITS
-	)
-except:
-	print "<==Error connecting to " + SERIAL_PORT + "==>"
-
-#initiate socket to push data to raspberry pi
-#wlan0 address of pi:
-#SEND_TO_IP = '192.168.56.101'
-SEND_TO_IP = '10.10.10.195'
-SEND_TO_PORT = 5005
-try:
-	sock = initSocket(SEND_TO_IP, SEND_TO_PORT)
-except:
-	print "<== Error could not connect to rockets server at " + SEND_TO_IP + "==>" 
-
-
-while ser.isOpen():
-	#get data
-	dataString = ser.readline()
+def processData(dataString):
 	'''
 	parse string 
 	create array with elements deliminated by spaces
@@ -145,8 +118,8 @@ while ser.isOpen():
 		oldGPSTime = data[9]
 		#calcVelGPS(lat1, lon1, lat2, lon2, dt)
 
-	for i in range(18):
-		print data[i]
-	sock.sendto(str(data), (SEND_TO_IP, SEND_TO_PORT))
+	print "data: " + str(data)
 	
-#killSocket(sock)
+with open("bigTest.txt") as test:
+	for line in test:
+		processData(line)
