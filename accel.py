@@ -68,8 +68,5 @@ def findInertialFrameAccel(accX, accY, accZ, gyrX, gyrY, gyrZ, dt, accX_offset, 
 	print "acceleration: " + str(acceleration)
 	#print "velocity: " + str(velocity)
 	#print "position: " + str(position)
-<<<<<<< HEAD
 
 	return acceleration
-=======
->>>>>>> d87b525462856084fd51f6cbca0d63d1a397af14

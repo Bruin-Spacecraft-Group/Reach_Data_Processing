@@ -11,7 +11,7 @@ GYRY_CALIB = -57.682
 GYRZ_CALIB = 77.826
 
 velocity = [0,0,0]
-position = [0,0,0]	
+position = [0,0,0]
 
 dt = 0.1
 startTime = time.time()
