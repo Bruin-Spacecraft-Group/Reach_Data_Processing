@@ -98,7 +98,7 @@ while ser.isOpen():
 	data.append(altitudeCalc(data[1]+500))
 
 	#process acceleration
-	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[7], dt, ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB)
+	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[5], dt, ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB)
 	
 	#integrate to find velocity
 	velocity[0] = velocity[0] + acceleration[0]*dt
