@@ -66,7 +66,7 @@ def findInertialFrameAccel(accX, accY, accZ, gyrX, gyrY, gyrZ, dt, accX_offset, 
 	#note I left off the cut off tests for acceleration
 
 	print "acceleration: " + str(acceleration)
-	print "velocity: " + str(velocity)
-	print "position: " + str(position)
+	#print "velocity: " + str(velocity)
+	#print "position: " + str(position)
 
 	return acceleration
