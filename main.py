@@ -9,6 +9,7 @@ from altimeter.altitudeCalculation import altitudeCalc
 from accel import findInertialFrameAccel
 
 #Initiate variables
+start = time.time()
 oldtime = time.time()
 oldGPSTime = time.time()
 
@@ -18,9 +19,13 @@ GPSInit()
 velocity = [0,0,0]
 position = [0,0,0]
 
+ACCX_CALIB = -20
+ACCY_CALIB = -10
+ACCZ_CALIB = 13
+
 try:
 	#initiate serial port to read data from
-	SERIAL_PORT = 'COM3'
+	SERIAL_PORT = 'COM4'
 	ser = serial.Serial(
 	    port=SERIAL_PORT,
 	    baudrate=9600,
@@ -34,8 +39,8 @@ except:
 
 #initiate socket to push data to raspberry pi
 #wlan0 address of pi:
-#SEND_TO_IP = '192.168.56.101'
-SEND_TO_IP = '10.10.10.195'
+SEND_TO_IP = '192.168.1.12'
+#SEND_TO_IP = '10.10.10.193'
 SEND_TO_PORT = 5005
 try:
 	sock = initSocket(SEND_TO_IP, SEND_TO_PORT)
@@ -78,13 +83,13 @@ while ser.isOpen():
 	#convert from string type
 	for i in range(len(data)-1):
 		data[i] = float(data[i])
-
+	'''
 	if (len(data) < 12):
 		gpsRecieved = False
 		print "no coordinates"
 	else: 
 		gpsRecieved = True
-
+	'''
 	#establish time elapsed
 	dt = data[0] - oldtime
 	oldtime = data[0]
@@ -93,7 +98,7 @@ while ser.isOpen():
 	data.append(altitudeCalc(data[1]+500))
 
 	#process acceleration
-	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[7], dt)
+	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[7], dt, ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB)
 	
 	#integrate to find velocity
 	velocity[0] = velocity[0] + acceleration[0]*dt
@@ -145,8 +150,41 @@ while ser.isOpen():
 		oldGPSTime = data[9]
 		#calcVelGPS(lat1, lon1, lat2, lon2, dt)
 
-	for i in range(18):
+		print "sending:"
+	finalData = ""
+	for i in range(23):
+		data[0] = time.time()
+		data.insert(1, (time.time() - start))
 		print data[i]
-	sock.sendto(str(data), (SEND_TO_IP, SEND_TO_PORT))
+		finalData = finalData + str(data[i]) + ","
+		'''
+		finalData contents should be as follows, 
+		as a string separated by commas:
+		timestamp
+		relative time (from start of program)
+		pressure
+		temperature
+		gyroX
+		gyroY
+		gyroZ
+		accelX
+		accelY
+		accelZ
+		gps Time
+		lon
+		lat
+		gps Alt
+		gps speed
+		course
+		altitude
+		velX
+		velY
+		velZ
+		posX
+		posY
+		posZ
+		'''
+		print data[15]
+	sock.sendto(finalData, (SEND_TO_IP, SEND_TO_PORT))
 	
 #killSocket(sock)
