@@ -95,7 +95,7 @@ while ser.isOpen():
 	oldtime = data[0]
 
 	#append altitude calculated from pressure
-	data.append(altitudeCalc(data[1]+500))
+	data.append(altitudeCalc(data[1]))
 
 	#process acceleration
 	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[7], dt, ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB)
@@ -152,15 +152,15 @@ while ser.isOpen():
 
 		print "sending:"
 	finalData = ""
-	for i in range(23):
-		data[0] = time.time()
-		data.insert(1, (time.time() - start))
-		print data[i]
+	data[0] = time.time()
+	data.insert(1, (time.time() - start))
+	for i in range(7):
+		#print data[i]
 		finalData = finalData + str(data[i]) + ","
 		'''
 		finalData contents should be as follows, 
 		as a string separated by commas:
-		timestamp
+		take out-->abs timestamp
 		relative time (from start of program)
 		pressure
 		temperature
@@ -184,7 +184,7 @@ while ser.isOpen():
 		posY
 		posZ
 		'''
-		print data[15]
+	print finalData
 	sock.sendto(finalData, (SEND_TO_IP, SEND_TO_PORT))
 	
 #killSocket(sock)
