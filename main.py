@@ -92,7 +92,7 @@ try:
 		#print len(data)
 
 		#DO STUFF WITH DATA
-		#convert from string type
+    #convert from string type
 		for i in range(len(data)-1):
 			data[i] = float(data[i])
 		'''
