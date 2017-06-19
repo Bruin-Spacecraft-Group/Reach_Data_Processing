@@ -2,7 +2,6 @@ import time
 import serial
 import socket
 import math
-import pickle
 
 from gps.GPS import GPSInit, saveCoor, processCoordinates, calcVelGPS
 from communication.sendUDP import initSocket, sendPacket, killSocket
@@ -24,23 +23,34 @@ ACCX_CALIB = -20
 ACCY_CALIB = -10
 ACCZ_CALIB = 13
 
+try:
+	#initiate serial port to read data from
+	SERIAL_PORT = 'COM4'
+	ser = serial.Serial(
+	    port=SERIAL_PORT,
+	    baudrate=9600,
+	    #I DONT KNOW WHAT THESE MEAN PLEASE CHANGE
+	    parity=serial.PARITY_ODD,
+	    stopbits=serial.STOPBITS_TWO,
+	    bytesize=serial.SEVENBITS
+	)
+except:
+	print "<==Error connecting to " + SERIAL_PORT + "==>"
+
 #initiate socket to push data to raspberry pi
 #wlan0 address of pi:
-#SEND_TO_IP = '192.168.1.12'
-SEND_TO_IP = '10.0.2.15'
+SEND_TO_IP = '192.168.1.12'
+#SEND_TO_IP = '10.10.10.193'
 SEND_TO_PORT = 5005
 try:
 	sock = initSocket(SEND_TO_IP, SEND_TO_PORT)
 except:
 	print "<== Error could not connect to rockets server at " + SEND_TO_IP + "==>" 
 
-n = 0.0
-while True:
-	n = n + 1.0
+
+while ser.isOpen():
 	#get data
-	data = []
-	for i in range(7):
-		data.append(i + n)
+	dataString = ser.readline()
 	'''
 	parse string 
 	create array with elements deliminated by spaces
@@ -61,13 +71,12 @@ while True:
 	data[13] = speed
 	data[14] = course
 	'''
+	data = dataString.split(",")
 	
 	#had problems with only reading in a few data 
-	'''
 	if (len(data) < 9):
 		print "not enough data"
 		continue
-	'''
 	#print len(data)
 
 	#DO STUFF WITH DATA
@@ -84,8 +93,6 @@ while True:
 	#establish time elapsed
 	dt = data[0] - oldtime
 	oldtime = data[0]
-	'''
-	data processing that doesn't matter for communcation testing purposes:
 
 	#append altitude calculated from pressure
 	data.append(altitudeCalc(data[1]))
@@ -142,13 +149,13 @@ while True:
 		#specific to GPS because GPS not expected as often
 		oldGPSTime = data[9]
 		#calcVelGPS(lat1, lon1, lat2, lon2, dt)
-	'''
-	print "sending:"
+
+		print "sending:"
 	finalData = ""
 	data[0] = time.time()
 	data.insert(1, (time.time() - start))
 	for i in range(7):
-		print data[i]
+		#print data[i]
 		finalData = finalData + str(data[i]) + ","
 		'''
 		finalData contents should be as follows, 
@@ -177,11 +184,7 @@ while True:
 		posY
 		posZ
 		'''
-	#print finalData
-
-	#serialized = pickle.dumps(finalData)
-	#print serialized
-	
-	sock.sendto(bytes(data), (SEND_TO_IP, SEND_TO_PORT))
+	print finalData
+	sock.sendto(finalData, (SEND_TO_IP, SEND_TO_PORT))
 	
 #killSocket(sock)
