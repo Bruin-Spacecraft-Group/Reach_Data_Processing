@@ -47,8 +47,8 @@ oldGPSTime = time.time()
 lat2 = 0
 lon2 = 0
 GPSInit()
-velocity = [0,0,0]
-position = [0,0,0]
+velocity = np.matrix([0,0,0]).T
+position = np.matrix([0,0,0]).T
 
 ACCX_CALIB = -20
 ACCY_CALIB = -10
@@ -105,17 +105,13 @@ while ser.isOpen():
 	data.append(altitudeCalc(data[1]))
 
 	#process acceleration
-	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[7], dt, ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB)
+	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[5], dt, [ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB])
 	
 	#integrate to find velocity
-	velocity[0] = velocity[0] + acceleration[0]*dt
-	velocity[1] = velocity[1] + acceleration[1]*dt
-	velocity[2] = velocity[2] + acceleration[2]*dt
+	velocity = velocity+acceleration*dt
 
 	#integrate to find position
-	position[0] = position[0] + velocity[0]*dt
-	position[1] = position[1] + velocity[1]*dt
-	position[2] = position[2] + velocity[2]*dt
+	position = position + velocity*dt
 
 	#set acceleration data to inertial fram acceleration data
 	data[6] = acceleration[0]
@@ -123,12 +119,12 @@ while ser.isOpen():
 	data[8] = acceleration[2]
 
 	#append velocity and position data to transmitted data
-	data.append(velocity[0]) 
-	data.append(velocity[1])
-	data.append(velocity[2])
-	data.append(position[0])
-	data.append(position[1])
-	data.append(position[2])
+	data.append(velocity.item(0)) 
+	data.append(velocity.item(1))
+	data.append(velocity.item(2))
+	data.append(position.item(0))
+	data.append(position.item(1))
+	data.append(position.item(2))
 
 	#Process GPS coordinates
 	if data[9] != oldGPSTime:
