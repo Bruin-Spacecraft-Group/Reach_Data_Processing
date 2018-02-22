@@ -1,15 +1,17 @@
 import numpy as np
 import math
 
-ACCX_CALIB = -20
-ACCY_CALIB = -10
-ACCZ_CALIB = 13
+#ACCX_CALIB = -20
+#ACCY_CALIB = -10
+#ACCZ_CALIB = 13
+
 
 cum_rot = np.matrix([[1,0,0],[0,1,0],[0,0,1]])
 
-GYRX_CALIB = -80.83
-GYRY_CALIB = 64.81
-GYRZ_CALIB = -52.35
+
+#GYRX_CALIB = -80.83
+#GYRY_CALIB = 64.81
+#GYRZ_CALIB = -52.35
 
 #rot
 def rotationMatrixToEulerAngles(R) :
@@ -46,39 +48,33 @@ def gyrotoeuler(gyro,pos,dt):
 
 
 def findInertialFrameAccel(accX, accY, accZ, gyrX, gyrY, gyrZ, dt,inital_g):
-    	g_norm = [[accX],[accY],[accZ]]
-    	for i in range(0,3):
-    	    g_norm[i]= g_norm[i][0]
-   	g_norm = np.matrix(g_norm)
-    	holder = [gyrX,gyrY,gyrZ]
-    	for i in range(0,3):
-    	    if abs(holder[i]) <0.05:
-    	        holder[i]=0
-    	    else:
-    	        print("hi")
-    	yeah.append(holder[2])
-    
-        
-    	holder = gyrotoeuler(holder,rotationMatrixToEulerAngles(cum_rot),dt).T
-    	z_rot = np.matrix([
-    	    [ math.cos(math.radians(holder.item(2))) , -math.sin(math.radians(holder.item(2))) ,  0 ],
-    	    [ math.sin(math.radians(holder.item(2))) , math.cos(math.radians(holder.item(2)))  , 0 ],
-    	    [ 0 , 0 , 1 ]
-    	])
-    	y_rot = np.matrix([
-    	    [ math.cos(math.radians(holder.item(1)))  , 0 , math.sin(math.radians(holder.item(1))) ],
-    	    [ 0 , 1 , 0 ],
-    	    [ -math.sin(math.radians(holder.item(1))) ,  0 , math.cos(math.radians(holder.item(1))) ]
-    	])
-    	x_rot = np.matrix([
-    	    [ 1 , 0 , 0 ],
-    	    [ 0 , math.cos(math.radians(holder.item(0))) , -math.sin(math.radians(holder.item(0))) ],
-    	    [ 0 , math.sin(math.radians(holder.item(0))) , math.cos(math.radians(holder.item(0))) ]
-    	    
-    	])
-    	total_rot = z_rot*y_rot*x_rot
-    	cum_rot = cum_rot *total_rot
-    	firsty.append(cum_rot.item(0,1))
-    	inertal_acc = cum_rot*g_norm.T
-    	inertal_acc = inertal_acc - np.matrix(inital_g).T
-	return inertal_acc
+    global cum_rot
+    g_norm = [[accX],[accY],[accZ]]
+    for i in range(0,3):
+	    g_norm[i]= g_norm[i][0]
+    g_norm = np.matrix(g_norm)
+    holder = [gyrX,gyrY,gyrZ]
+    for i in range(0,3):
+	   if abs(holder[i]) <0.05:
+            holder[i]=0
+    holder = gyrotoeuler(holder,rotationMatrixToEulerAngles(cum_rot),dt).T
+    z_rot = np.matrix([
+        [ math.cos(math.radians(holder.item(2))) , -math.sin(math.radians(holder.item(2))) ,  0 ],
+    	[ math.sin(math.radians(holder.item(2))) , math.cos(math.radians(holder.item(2)))  , 0 ],
+        [ 0 , 0 , 1 ]
+	])
+    y_rot = np.matrix([
+    	[ math.cos(math.radians(holder.item(1)))  , 0 , math.sin(math.radians(holder.item(1))) ],
+        [ 0 , 1 , 0 ],
+	    [ -math.sin(math.radians(holder.item(1))) ,  0 , math.cos(math.radians(holder.item(1))) ]
+    ])
+    x_rot = np.matrix([
+	    [ 1 , 0 , 0 ],
+    	[ 0 , math.cos(math.radians(holder.item(0))) , -math.sin(math.radians(holder.item(0))) ],
+        [ 0 , math.sin(math.radians(holder.item(0))) , math.cos(math.radians(holder.item(0))) ]    	    
+	])
+    total_rot = z_rot*y_rot*x_rot
+    cum_rot = cum_rot *total_rot
+    inertal_acc = cum_rot*g_norm.T
+    inertal_acc = inertal_acc - np.matrix(inital_g).T
+    return inertal_acc

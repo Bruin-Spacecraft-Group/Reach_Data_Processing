@@ -1,3 +1,5 @@
+#TODO save data
+
 import time
 import serial
 import socket
@@ -7,17 +9,17 @@ import numpy as np
 from gps.GPS import GPSInit, saveCoor, processCoordinates, calcVelGPS
 from communication.sendUDP import initSocket, sendPacket, killSocket
 from altimeter.altitudeCalculation import altitudeCalc
-from accel import findInertialFrameAccel
+import accel
+#from accel import findInertialFrameAccel
 
 try:
 	print "Opening Serial Port..."
 	#initiate serial port to read data from
-	SERIAL_PORT = 'COM3'
+	SERIAL_PORT = 'COM4'
 	ser = serial.Serial(
 	    port=SERIAL_PORT,
 	    baudrate=9600,
 	    timeout=3, #give up reading after 3 seconds
-	    #I DONT KNOW WHAT THESE MEAN PLEASE CHANGE
 	    parity=serial.PARITY_ODD,
 	    stopbits=serial.STOPBITS_TWO,
 	    bytesize=serial.SEVENBITS
@@ -27,6 +29,7 @@ except:
 	print "<==Error connecting to " + SERIAL_PORT + "==>"
 	exit()
 
+'''
 #initiate socket to push data to raspberry pi
 #wlan0 address of pi:
 SEND_TO_IP = '192.168.1.12'
@@ -39,11 +42,9 @@ try:
 except:
 	print "<== Error could not connect to server at " + SEND_TO_IP + "==>" 
 	exit()
-
+'''
 #Initiate variables
-start = time.time()
-oldtime = time.time()
-oldGPSTime = time.time()
+FIRST = True
 
 lat2 = 0
 lon2 = 0
@@ -51,15 +52,33 @@ GPSInit()
 velocity = np.matrix([0,0,0]).T
 position = np.matrix([0,0,0]).T
 
+#TODO function for dynamicaly assessing calibration constants
 ACCX_CALIB = -20
 ACCY_CALIB = -10
 ACCZ_CALIB = 13
 
+#set positions of data in incoming csv packet
+TIMESTAMP = 0
+ACCELX = 1
+ACCELY = 2
+ACCELZ = 3
+GYROX = 4
+GYROY = 5
+GYROZ = 6
+MAGX = 7
+MAGY = 8
+MAGZ = 9
+MAGHEAD = 10
+TEMP = 11
+ALTITUDE = 12
+
+#TODO 
 while ser.isOpen():
 	#get data
 	dataString = ser.readline()
-	print dataString
+	print '"' + dataString
 	'''
+	LAST YEAR'S ORDER LEFT FOR REFERENCE, IS NOT USED
 	parse string 
 	create array with elements deliminated by spaces
 	contents should be as follows
@@ -80,12 +99,19 @@ while ser.isOpen():
 	data[14] = course
 	'''
 	data = dataString.split(",")
-	
+
 	#had problems with only reading in a few data 
-	if (len(data) < 9):
+	if (len(data) < 6):
 		print "not enough data"
 		continue
-	#print len(data)
+
+	#establish spacecraft time
+	if(FIRST == True):
+		FIRST = False
+		oldtime = float(data[TIMESTAMP])
+		#since dt cannot be established, skip
+		#TODO save first data packet's raw data
+		continue
 
 	#DO STUFF WITH DATA
 	#convert from string type
@@ -99,14 +125,14 @@ while ser.isOpen():
 		gpsRecieved = True
 	'''
 	#establish time elapsed
-	dt = data[0] - oldtime
-	oldtime = data[0]
+	dt = (data[TIMESTAMP] - oldtime)/1000 #convert ms to s
+	oldtime = data[TIMESTAMP]
 
 	#append altitude calculated from pressure
-	data.append(altitudeCalc(data[1]))
+	#data.append(altitudeCalc(data[1]))
 
 	#process acceleration
-	acceleration = findInertialFrameAccel(data[6], data[7], data[8], data[3], data[4], data[5], dt, [ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB])
+	acceleration = accel.findInertialFrameAccel(data[ACCELX], data[ACCELY], data[ACCELZ], data[GYROX], data[GYROY], data[GYROZ], dt, [ACCX_CALIB, ACCY_CALIB, ACCZ_CALIB])
 	
 	#integrate to find velocity
 	velocity = velocity+acceleration*dt
@@ -114,12 +140,11 @@ while ser.isOpen():
 	#integrate to find position
 	position = position + velocity*dt
 
-	#set acceleration data to inertial fram acceleration data
-	data[6] = acceleration.item(0)
-	data[7] = acceleration.item(1)
-	data[8] = acceleration.item(2)
-
-	#append velocity and position data to transmitted data
+	#append inertial frame acceleration velocity 
+	#and position data to transmitted data
+	data.append(acceleration.item(0))
+	data.append(acceleration.item(1))
+	data.append(acceleration.item(2))
 	data.append(velocity.item(0)) 
 	data.append(velocity.item(1))
 	data.append(velocity.item(2))
@@ -127,6 +152,7 @@ while ser.isOpen():
 	data.append(position.item(1))
 	data.append(position.item(2))
 
+	'''
 	#Process GPS coordinates
 	if data[9] != oldGPSTime:
 		longitude = data[10]
@@ -155,39 +181,42 @@ while ser.isOpen():
 		#calcVelGPS(lat1, lon1, lat2, lon2, dt)
 
 		print "sending:"
+	'''
+	
+	#append absolute time
+	data.append(time.time())
+	
 	finalData = ""
-	data[0] = time.time()
-	data.insert(1, (time.time() - start))
-	for i in range(7):
+	for i in range(len(data)-1):
 		#print data[i]
-		finalData = finalData + str(data[i]) + ","
+		finalData = finalData + str(data[i]) + ", "
 		'''
 		finalData contents should be as follows, 
 		as a string separated by commas:
-		take out-->abs timestamp
-		relative time (from start of program)
-		pressure
-		temperature
+		relative spacecraft time 
+		raw accelX
+		raw accelY
+		raw accelZ
 		gyroX
 		gyroY
 		gyroZ
-		accelX
-		accelY
-		accelZ
-		gps Time
-		lon
-		lat
-		gps Alt
-		gps speed
-		course
+		magX
+		magY
+		magZ
+		magHead
+		temp(C)
 		altitude
+		inertial accelX
+		inertial accelY
+		inertial accelZ
 		velX
 		velY
 		velZ
 		posX
 		posY
 		posZ
+		absTime
 		'''
 	print finalData
-	sock.sendto(finalData, (SEND_TO_IP, SEND_TO_PORT))
+	#sock.sendto(finalData, (SEND_TO_IP, SEND_TO_PORT))
 #killSocket(sock)
