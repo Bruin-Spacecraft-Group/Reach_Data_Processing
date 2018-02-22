@@ -2,6 +2,7 @@ import time
 import serial
 import socket
 import math
+import numpy as np
 
 from gps.GPS import GPSInit, saveCoor, processCoordinates, calcVelGPS
 from communication.sendUDP import initSocket, sendPacket, killSocket
@@ -114,9 +115,9 @@ while ser.isOpen():
 	position = position + velocity*dt
 
 	#set acceleration data to inertial fram acceleration data
-	data[6] = acceleration[0]
-	data[7] = acceleration[1]
-	data[8] = acceleration[2]
+	data[6] = acceleration.item(0)
+	data[7] = acceleration.item(1)
+	data[8] = acceleration.item(2)
 
 	#append velocity and position data to transmitted data
 	data.append(velocity.item(0)) 
