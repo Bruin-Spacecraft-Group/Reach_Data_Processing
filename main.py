@@ -108,13 +108,13 @@ while ser.isOpen():
 		ACCX_CALIB += data[ACCELX]
 		ACCY_CALIB += data[ACCELY]
 		ACCZ_CALIB += data[ACCELZ]
-		count++
+		count+=1
 	else:
 		if(count==6):
 			ACCX_CALIB = ACCX_CALIB/6
 			ACCY_CALIB = ACCY_CALIB/6
 			ACCZ_CALIB = ACCZ_CALIB/6
-			count++
+			count+=1
 	
 		#had problems with only reading in a few data 
 		if (len(data) < 6):
