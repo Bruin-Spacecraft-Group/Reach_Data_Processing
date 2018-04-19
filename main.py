@@ -65,22 +65,30 @@ ACCELZ = 3
 GYROX = 4
 GYROY = 5
 GYROZ = 6
-MAGX = 7
-MAGY = 8
-MAGZ = 9
-MAGHEAD = 10
-TEMP = 11
-ALTITUDE = 12
+GPSLAT = 7
+GPSLON = 8
+GPSALT = 9
+GPSHOUR = 10
+GPSMIN = 11
+GPSSEC = 12
+#MAGX = 7
+#MAGY = 8
+#MAGZ = 9
+#MAGHEAD = 10
+TEMP = 13
+PRES = 14
+ALTITUDE = 15
+BAROTEMP = 16
 
 tots_not_launch = 1
-count =0
+count = 0
 
 
 #TODO 
 while ser.isOpen():
 	#get data
 	dataString = ser.readline()
-	print '"' + dataString
+	print 'Received: ' + dataString + '/n'
 	'''
 	LAST YEAR'S ORDER LEFT FOR REFERENCE, IS NOT USED
 	parse string 
@@ -105,6 +113,7 @@ while ser.isOpen():
 	data = dataString.split(",")
 
 	if(count<6):
+		print 'Calibrating...'
 		ACCX_CALIB += data[ACCELX]
 		ACCY_CALIB += data[ACCELY]
 		ACCZ_CALIB += data[ACCELZ]
@@ -115,6 +124,7 @@ while ser.isOpen():
 			ACCY_CALIB = ACCY_CALIB/6
 			ACCZ_CALIB = ACCZ_CALIB/6
 			count+=1
+			print 'Calibration: ' + str(ACCX_CALIB) + ', ' + str(ACCY_CALIB) + ', ' + str(ACCZ_CALIB)
 	
 		#had problems with only reading in a few data 
 		if (len(data) < 6):
@@ -168,11 +178,11 @@ while ser.isOpen():
 		data.append(position.item(1))
 		data.append(position.item(2))
 	
-		'''
+		
 		#Process GPS coordinates
-		if data[9] != oldGPSTime:
-			longitude = data[10]
-			latitude = data[11]
+		if data[GPSSEC] != oldGPSTime:
+			longitude = data[GPSLON]
+			latitude = data[GPSLAT]
 			latDeg = math.floor(latitude)
 			lonDeg = math.floor(longitude)
 	
@@ -182,7 +192,7 @@ while ser.isOpen():
 			lat = float(latDeg)+float(latMin)/60
 		 	lon = float(lonDeg)-float(lonMin)/60
 		    
-			saveCoor(lon, lat, data[12])
+			saveCoor(lon, lat, data[GPSALT])
 		    
 		    #speed calculation from gps data:
 			#push the last new value to the old and then set the new value 
@@ -191,13 +201,15 @@ while ser.isOpen():
 			lon1 = lon2
 			lon2 = lon
 
-			dt = data[9] - oldGPSTime
+			dt = data[GPSSEC] - oldGPSTime
+			if dt < 0:
+				dt = data[GPSSEC] + 60 - oldGPSTime
 			#specific to GPS because GPS not expected as often
-			oldGPSTime = data[9]
+			oldGPSTime = data[GPSSEC]
 			#calcVelGPS(lat1, lon1, lat2, lon2, dt)
 	
 			print "sending:"
-		'''
+		
 		
 		#append absolute time
 		data.append(time.time())
